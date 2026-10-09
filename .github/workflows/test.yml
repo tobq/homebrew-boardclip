@@ -22,12 +22,12 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Install
-        run: brew install --cask tobq/boardclip/boardclip
+        run: brew install --cask tobq/tap/boardclip
 
       - name: Style and audit
         run: |
-          brew style --cask tobq/boardclip/boardclip
-          brew audit --cask tobq/boardclip/boardclip
+          brew style --cask tobq/tap/boardclip
+          brew audit --cask tobq/tap/boardclip
 
       # The postflight step must have removed the download quarantine flag (so
       # Gatekeeper never asks), and the bundle must still carry a valid signature.
@@ -66,8 +66,8 @@ jobs:
           Invoke-RestMethod -Uri https://get.scoop.sh -OutFile "$env:RUNNER_TEMP\install-scoop.ps1"
           & "$env:RUNNER_TEMP\install-scoop.ps1" -RunAsAdmin
           $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
-          scoop bucket add boardclip https://github.com/tobq/homebrew-boardclip
-          scoop install boardclip/boardclip
+          scoop bucket add tobq https://github.com/tobq/homebrew-tap
+          scoop install tobq/boardclip
           $exe = "$env:USERPROFILE\scoop\apps\boardclip\current\BoardClip.exe"
           if (-not (Test-Path $exe)) { Get-ChildItem "$env:USERPROFILE\scoop\apps\boardclip\current"; throw "BoardClip.exe missing" }
           (Get-Item $exe).VersionInfo | Format-List ProductVersion, FileVersion

@@ -1,12 +1,12 @@
-# BoardClip for Homebrew and Scoop
+# tobq's Homebrew tap and Scoop bucket
 
-Install [BoardClip](https://boardclip.app), clipboard history with search, groups, numpad quick paste and
-sync, with your package manager. The app itself lives at [tobq/boardclip](https://github.com/tobq/boardclip).
+Install my apps with your package manager. Today: [BoardClip](https://boardclip.app), clipboard history with
+search, groups, numpad quick paste and sync. The app itself lives at [tobq/boardclip](https://github.com/tobq/boardclip).
 
 ## macOS (Homebrew)
 
 ```sh
-brew install --cask tobq/boardclip/boardclip
+brew install --cask tobq/tap/boardclip
 ```
 
 Update with `brew upgrade --cask boardclip`. The cask installs the universal app (Apple Silicon and Intel).
@@ -18,8 +18,8 @@ installed app, so it opens without that prompt.
 ## Windows (Scoop)
 
 ```powershell
-scoop bucket add boardclip https://github.com/tobq/homebrew-boardclip
-scoop install boardclip/boardclip
+scoop bucket add tobq https://github.com/tobq/homebrew-tap
+scoop install tobq/boardclip
 ```
 
 Update with `scoop update boardclip`.
