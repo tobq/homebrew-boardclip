@@ -1,0 +1,73 @@
+name: Update
+
+# Follows https://github.com/tobq/boardclip: when its latest release is a newer
+# numbered release (vX.Y.Z), write that version and the installers' sha256 (from
+# the release's SHA256SUMS.txt) into the cask and the Scoop manifest, commit,
+# then install both on clean runners. Polling from here needs no cross-repo
+# token: GITHUB_TOKEN reads the public release and pushes to this repo.
+on:
+  schedule:
+    - cron: "7,27,47 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    name: Bump to the latest release
+    runs-on: ubuntu-24.04
+    outputs:
+      changed: ${{ steps.bump.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=$(gh release view --repo tobq/boardclip --json tagName --jq .tagName)
+          case "$TAG" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "Latest release $TAG is not a numbered release; nothing to do."; echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          VERSION=${TAG#v}
+          CURRENT=$(sed -nE 's/^  version "(.*)"$/\1/p' Casks/boardclip.rb)
+          if [ "$VERSION" = "$CURRENT" ]; then
+            echo "Already at $VERSION."; echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          gh release download "$TAG" --repo tobq/boardclip --pattern SHA256SUMS.txt --dir "$RUNNER_TEMP/sums"
+          SUMS="$RUNNER_TEMP/sums/SHA256SUMS.txt"
+          hash_of() { awk -v f="$1" '{ name = $2; sub(/^\*/, "", name) } name == f { print $1 }' "$SUMS"; }
+          MAC=$(hash_of BoardClip-macOS.dmg)
+          WIN=$(hash_of BoardClip-Setup-Windows.exe)
+          if [ ${#MAC} -ne 64 ] || [ ${#WIN} -ne 64 ]; then
+            echo "SHA256SUMS.txt of $TAG lacks an installer hash"; cat "$SUMS"; exit 1
+          fi
+          sed -i -E "s/^  version \".*\"$/  version \"$VERSION\"/; s/^  sha256 \".*\"$/  sha256 \"$MAC\"/" Casks/boardclip.rb
+          jq --arg v "$VERSION" --arg h "$WIN" '
+            .version = $v
+            | .architecture."64bit".hash = $h
+            | .architecture."64bit".url = "https://github.com/tobq/boardclip/releases/download/v\($v)/BoardClip-Setup-Windows.exe#/dl.7z"
+          ' bucket/boardclip.json > "$RUNNER_TEMP/boardclip.json"
+          # Scoop's own style: four-space indent.
+          jq --indent 4 . "$RUNNER_TEMP/boardclip.json" > bucket/boardclip.json
+          git diff --stat
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -am "boardclip $VERSION"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  # A push made with GITHUB_TOKEN starts no other workflow, so the install test
+  # is called from here.
+  test:
+    name: Test
+    needs: bump
+    if: needs.bump.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/test.yml
