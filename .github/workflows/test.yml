@@ -41,9 +41,11 @@ jobs:
           codesign -dv "$APP" 2>&1 | grep -E 'Identifier|Authority|Signature|TeamIdentifier' || true
           codesign -d -r- "$APP" 2>&1 | grep designated || true
 
+      # By path: `open -a <name>` asks LaunchServices, which may not have indexed a
+      # just-installed app yet (macOS 26: "Unable to find application named").
       - name: Launches
         run: |
-          open -a BoardClip
+          open /Applications/BoardClip.app
           for i in $(seq 1 30); do
             if pgrep -f "BoardClip.app/Contents/MacOS/BoardClip" >/dev/null; then echo "running after ${i}s"; break; fi
             sleep 1
