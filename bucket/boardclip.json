@@ -1,12 +1,12 @@
 {
-    "version": "2.1.109",
+    "version": "2.1.110",
     "description": "Clipboard history with search, groups, numpad quick paste and sync",
     "homepage": "https://boardclip.app",
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/tobq/boardclip/releases/download/v2.1.109/BoardClip-Setup-Windows.exe#/dl.7z",
-            "hash": "89cd70468578db547adb97754d9e58b84615ebcaa14008abecd7077e15d158c4",
+            "url": "https://github.com/tobq/boardclip/releases/download/v2.1.110/BoardClip-Setup-Windows.exe#/dl.7z",
+            "hash": "d7267865e7a22ca8ecbdf1887d0b3f761990ec4e1dc2580f964c9b96d8d3aa18",
             "pre_install": "Expand-7zipArchive \"$dir\\`$PLUGINSDIR\\app-64.7z\" \"$dir\""
         }
     },
