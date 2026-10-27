@@ -2,8 +2,8 @@
 # numbered release of https://github.com/tobq/boardclip (read from its SHA256SUMS.txt).
 
 cask "boardclip" do
-  version "2.1.114"
-  sha256 "15943732867176e543667a9dcc9060a7943e920d2494d062c32af938446d0140"
+  version "2.1.115"
+  sha256 "86711ff6e270d6fc3c49c964d6e297eda77dfd8f8cac57c95e369729eb6d966b"
 
   url "https://github.com/tobq/boardclip/releases/download/v#{version}/BoardClip-macOS.dmg"
   name "BoardClip"
